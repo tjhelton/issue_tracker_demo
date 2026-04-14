@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install pyinstaller
+          pip install "pyinstaller<6"
 
       - name: Build app
         run: pyinstaller "SafetyCulture Tools.spec"
@@ -52,7 +52,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install pyinstaller
+          pip install "pyinstaller<6"
 
       - name: Build app
         run: pyinstaller "SafetyCulture Tools.spec"
