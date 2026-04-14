@@ -1,0 +1,81 @@
+name: Build Desktop App
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build app
+        run: pyinstaller "SafetyCulture Tools.spec"
+
+      - name: Create DMG
+        run: |
+          hdiutil create \
+            -volname "SafetyCulture Tools" \
+            -srcfolder "dist/SafetyCulture Tools.app" \
+            -ov -format UDZO \
+            "dist/SafetyCulture-Tools-Mac.dmg"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac-dmg
+          path: dist/SafetyCulture-Tools-Mac.dmg
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build app
+        run: pyinstaller "SafetyCulture Tools.spec"
+
+      - name: Create ZIP
+        run: |
+          Compress-Archive -Path "dist\SafetyCulture Tools" -DestinationPath "dist\SafetyCulture-Tools-Windows.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip
+          path: dist/SafetyCulture-Tools-Windows.zip
+
+  release:
+    needs: [build-mac, build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/download-artifact@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            mac-dmg/SafetyCulture-Tools-Mac.dmg
+            windows-zip/SafetyCulture-Tools-Windows.zip
