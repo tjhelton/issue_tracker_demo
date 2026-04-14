@@ -32,6 +32,9 @@ Thumbs.db
 # Streamlit
 .streamlit/secrets.toml
 
+# PyInstaller
+*.spec.bak
+
 # Project-specific
 scripts/**/input.csv
 scripts/**/output*.csv
