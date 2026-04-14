@@ -77,6 +77,45 @@ def run_streamlit_server(app_path, port):
         pass
 
 
+# Inline HTML shown in the webview while Streamlit is starting up.
+_LOADING_HTML = """
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>SafetyCulture Tools</title>
+<style>
+  body { margin:0; height:100vh; display:flex; align-items:center;
+         justify-content:center; font-family:-apple-system,sans-serif;
+         background:#FFFFFF; color:#333; }
+  .box { text-align:center; }
+  .spinner { width:48px; height:48px; border:4px solid #E0E0E0;
+             border-top-color:#6C63FF; border-radius:50%;
+             animation:spin .8s linear infinite; margin:0 auto 20px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  h2 { font-weight:500; margin:0 0 8px; }
+  p  { color:#888; font-size:14px; margin:0; }
+</style></head>
+<body><div class="box">
+  <div class="spinner"></div>
+  <h2>SafetyCulture Tools</h2>
+  <p>Starting up &hellip;</p>
+</div></body>
+</html>
+"""
+
+
+def _navigate_when_ready(window, url, timeout=120):
+    """Background thread: wait for Streamlit, then redirect the webview."""
+    if wait_for_server(url, timeout):
+        window.load_url(url)
+    else:
+        window.load_html(
+            "<html><body style='font-family:sans-serif;padding:40px'>"
+            "<h2>Startup Error</h2>"
+            "<p>The Streamlit server failed to start. "
+            "Please quit and try again.</p></body></html>"
+        )
+
+
 def main():
     app_dir = get_app_dir()
     port = find_free_port()
@@ -91,22 +130,31 @@ def main():
     )
     server_thread.start()
 
-    if not wait_for_server(url):
-        sys.exit("Error: Streamlit server failed to start.")
-
-    # Native desktop window, with browser fallback
+    # Native desktop window — show a loading page immediately so the dock
+    # icon settles, then navigate to Streamlit once it is ready.
     try:
         import webview
 
-        webview.create_window(
+        window = webview.create_window(
             "SafetyCulture Tools",
-            url,
+            html=_LOADING_HTML,
             width=1280,
             height=900,
             min_size=(800, 600),
         )
+        nav_thread = threading.Thread(
+            target=_navigate_when_ready,
+            args=(window, url),
+            daemon=True,
+        )
+        nav_thread.start()
         webview.start()
-    except Exception:
+    except Exception as exc:
+        # webview failed — fall back to the default browser.
+        # Log the error so it's visible in Console.app for .app bundles.
+        print(f"pywebview unavailable ({exc}); falling back to browser.")
+        if not wait_for_server(url):
+            sys.exit("Error: Streamlit server failed to start.")
         import webbrowser
 
         webbrowser.open(url)

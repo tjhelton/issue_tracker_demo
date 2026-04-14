@@ -27,6 +27,26 @@ jobs:
       - name: Build app
         run: pyinstaller --clean "SafetyCulture Tools.spec"
 
+      - name: Ad-hoc code sign
+        run: |
+          # Remove any quarantine attributes left over from the build
+          xattr -cr "dist/SafetyCulture Tools.app"
+
+          # Sign every .so / .dylib inside the bundle individually first,
+          # then sign the main executable and the .app wrapper.  This is
+          # more reliable than --deep for PyInstaller bundles which place
+          # hundreds of shared libraries in a flat directory.
+          find "dist/SafetyCulture Tools.app" -type f \
+            \( -name "*.so" -o -name "*.dylib" \) \
+            -exec codesign --force --sign - {} +
+
+          codesign --force --sign - \
+            "dist/SafetyCulture Tools.app/Contents/MacOS/SafetyCulture Tools"
+          codesign --force --sign - "dist/SafetyCulture Tools.app"
+
+          # Verify the signature is valid
+          codesign --verify --verbose "dist/SafetyCulture Tools.app"
+
       - name: Create DMG
         run: |
           hdiutil create \

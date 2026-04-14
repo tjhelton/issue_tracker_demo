@@ -63,6 +63,12 @@ for _pkg in [
     "rich",
     "click",
     "tornado",
+    # PyObjC — required by pywebview's native macOS (Cocoa/WebKit) backend.
+    # Without these the webview window never opens and the app bounces forever.
+    "objc",
+    "AppKit",
+    "Foundation",
+    "WebKit",
 ]:
     try:
         _d, _b, _h = collect_all(_pkg)
@@ -136,5 +142,13 @@ if sys.platform == "darwin":
             "CFBundleVersion": "1.0.0",
             "CFBundleShortVersionString": "1.0.0",
             "NSHighResolutionCapable": True,
+            # Tell macOS this is a proper GUI app — without this the dock
+            # icon bounces forever because the app never joins the window
+            # server session.
+            "NSPrincipalClass": "NSApplication",
+            "LSMinimumSystemVersion": "10.13",
+            # Suppress the "app downloaded from the internet" warning body
+            # text that references a nil URL when the app is not notarised.
+            "LSApplicationCategoryType": "public.app-category.business",
         },
     )
