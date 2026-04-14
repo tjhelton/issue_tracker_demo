@@ -1,44 +1,28 @@
 # SafetyCulture Tools
 
-A collection of bulk operations tools for the SafetyCulture platform. Includes a Streamlit web app with a guided UI and 30+ standalone CLI scripts for managing actions, assets, inspections, sites, templates, users, and more via the SafetyCulture API.
+A collection of bulk operations tools for the SafetyCulture platform. Includes a guided web UI and 30+ standalone CLI scripts for managing actions, assets, inspections, sites, templates, users, and more via the SafetyCulture API.
 
-## Download & Install
+## Download
 
 ### Mac
 
-> **[Download for Mac](https://github.com/tjhelton/issue_tracker_demo/archive/refs/heads/main.zip)**
+> **[Download for Mac (.dmg)](https://github.com/tjhelton/issue_tracker_demo/releases/latest/download/SafetyCulture-Tools-Mac.dmg)**
 
-1. Download and extract the ZIP
-2. Double-click **SafetyCulture Tools.app**
-3. The app opens in a native window — first launch sets up dependencies and may take a minute
-
-If the `.app` doesn't work on your system, double-click `launch_app.command` instead.
+Open the `.dmg` and drag **SafetyCulture Tools** to your Applications folder (or just double-click it).
 
 ### Windows
 
-> **[Download for Windows](https://github.com/tjhelton/issue_tracker_demo/archive/refs/heads/main.zip)**
+> **[Download for Windows (.zip)](https://github.com/tjhelton/issue_tracker_demo/releases/latest/download/SafetyCulture-Tools-Windows.zip)**
 
-1. Download and extract the ZIP
-2. Double-click **launch_app.vbs**
-3. The app opens in a native window — first launch sets up dependencies and may take a minute
+Extract the ZIP and double-click **SafetyCulture Tools.exe**.
 
-If the `.vbs` doesn't work on your system, double-click `launch_app.bat` instead.
+### What you need
 
-### Prerequisites
+- A **SafetyCulture API Token** — [Get yours here](https://developer.safetyculture.com/reference/getting-started)
 
-- **Python 3.8+** — pre-installed on most Macs; [download for Windows](https://www.python.org/downloads/)
-- **SafetyCulture API Token** — [Get yours here](https://developer.safetyculture.com/reference/getting-started)
-
-### Manual Setup (Linux / advanced)
-
-```bash
-python3 -m pip install -r requirements.txt
-streamlit run app/Home.py
-```
+That's it. Python is bundled — no extra installs required.
 
 ## How It Works
-
-The web app provides a point-and-click interface for bulk SafetyCulture operations:
 
 1. Paste your API token on the home page and validate it
 2. Pick a category from the sidebar (Actions, Assets, Inspections, etc.)
@@ -47,7 +31,7 @@ The web app provides a point-and-click interface for bulk SafetyCulture operatio
 5. Click Run and watch the progress
 6. Download the results when complete
 
-Your API token is stored only for the browser session and is never saved to disk.
+Your API token is stored only for the session and is never saved to disk.
 
 ## Available Tools
 
@@ -73,6 +57,17 @@ Each tool is also available as a standalone Python script in the [scripts/](scri
 cd scripts/inspections/archive_inspections/
 # Edit main.py to set your API token, prepare input.csv
 python main.py
+```
+
+## Running from Source
+
+If you prefer to run the app from source instead of the standalone download:
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 launcher.py          # native window
+# or
+streamlit run app/Home.py    # browser
 ```
 
 ## Important Notes
