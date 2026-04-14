@@ -48,6 +48,11 @@ def run_streamlit_server(app_path, port):
         "streamlit",
         "run",
         app_path,
+        # PyInstaller bundles Streamlit outside of site-packages, so
+        # Streamlit's auto-detection incorrectly sets developmentMode=True.
+        # That mode forbids setting server.port, crashing the app on
+        # startup.  Force it off.
+        "--global.developmentMode=false",
         "--server.port",
         str(port),
         "--server.address",
